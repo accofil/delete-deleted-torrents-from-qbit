@@ -1,0 +1,7 @@
+# Másold ide:
+#   ~/.config/qbit-tag-delete/config
+# majd állítsd 600-ra a jogosultságát.
+
+QBIT_URL='http://127.0.0.1:10998'
+QBIT_USER='felhasznalo'
+QBIT_PASS='jelszo'
