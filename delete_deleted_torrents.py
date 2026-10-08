@@ -12,7 +12,6 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Sequence
-from urllib.parse import urlsplit
 
 import requests
 from dotenv import load_dotenv
@@ -30,10 +29,11 @@ DELETE_RULES = (
         "https://trackerprxy.digitalcore.club/",
         "Torrent does not exist on this tracker",
     ),
+    (
+        "http://ncore.sh:2710/",
+        "err: unregistered torrent",
+    ),
 )
-
-NCORE_TRACKER_DOMAIN = "ncore.sh"
-NCORE_DELETE_MESSAGE = "err: unregistered torrent"
 
 
 @dataclass(frozen=True)
@@ -134,37 +134,17 @@ def load_config() -> Config:
     return Config(qbit_url=qbit_url, username=username, password=password)
 
 
-def is_ncore_tracker_url(tracker_url: str) -> bool:
-    try:
-        hostname = (urlsplit(tracker_url).hostname or "").casefold()
-    except ValueError:
-        return False
-
-    return (
-        hostname == NCORE_TRACKER_DOMAIN
-        or hostname.endswith(f".{NCORE_TRACKER_DOMAIN}")
-    )
-
-
 def matching_delete_rule(
     tracker_url: str,
     tracker_message: str,
 ) -> tuple[str, str] | None:
     normalized_message = tracker_message.casefold()
-
     for expected_url, expected_message in DELETE_RULES:
         if (
             tracker_url.startswith(expected_url)
             and expected_message.casefold() in normalized_message
         ):
             return expected_url, expected_message
-
-    if (
-        is_ncore_tracker_url(tracker_url)
-        and NCORE_DELETE_MESSAGE.casefold() in normalized_message
-    ):
-        return NCORE_TRACKER_DOMAIN, NCORE_DELETE_MESSAGE
-
     return None
 
 

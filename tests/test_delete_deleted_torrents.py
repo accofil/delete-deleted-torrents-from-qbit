@@ -30,28 +30,16 @@ class DeleteRuleTests(unittest.TestCase):
                 "https://trackerprxy.digitalcore.club/announce/example",
                 "Torrent does not exist on this tracker.",
             ),
+            (
+                "http://ncore.sh:2710/example-passkey/announce",
+                "err: unregistered torrent",
+            ),
         )
 
         for tracker_url, message in examples:
             with self.subTest(tracker_url=tracker_url):
                 self.assertIsNotNone(
                     module.matching_delete_rule(tracker_url, message)
-                )
-
-    def test_ncore_domain_and_subdomains_match(self):
-        tracker_urls = (
-            "http://ncore.sh:2710/example-passkey/announce",
-            "http://t.ncore.sh:2710/example-passkey/announce",
-            "https://tracker.ncore.sh/example-passkey/announce",
-        )
-
-        for tracker_url in tracker_urls:
-            with self.subTest(tracker_url=tracker_url):
-                self.assertIsNotNone(
-                    module.matching_delete_rule(
-                        tracker_url,
-                        "err: unregistered torrent",
-                    )
                 )
 
     def test_similar_but_unconfigured_tracker_does_not_match(self):
@@ -61,21 +49,6 @@ class DeleteRuleTests(unittest.TestCase):
                 "Torrent does not exist on this tracker.",
             )
         )
-
-    def test_ncore_lookalike_domain_does_not_match(self):
-        lookalike_urls = (
-            "http://evilncore.sh:2710/example/announce",
-            "http://ncore.sh.example.com/example/announce",
-        )
-
-        for tracker_url in lookalike_urls:
-            with self.subTest(tracker_url=tracker_url):
-                self.assertIsNone(
-                    module.matching_delete_rule(
-                        tracker_url,
-                        "err: unregistered torrent",
-                    )
-                )
 
     def test_wrong_message_does_not_match(self):
         self.assertIsNone(
@@ -88,7 +61,7 @@ class DeleteRuleTests(unittest.TestCase):
     def test_ncore_other_error_does_not_match(self):
         self.assertIsNone(
             module.matching_delete_rule(
-                "http://t.ncore.sh:2710/example-passkey/announce",
+                "http://ncore.sh:2710/example-passkey/announce",
                 "err: invalid passkey",
             )
         )
